@@ -1,83 +1,169 @@
-import pygame
-import sys
-import math
 
-LARGURA = 600
-ALTURA = 600
-FPS = 24
-BRANCO = (255, 255, 255)
-AZUL = (50, 120, 220)
-VERMELHO = (220, 50, 50)
-CINZA_ESCURO = (30, 30, 30)
+import pygame, random, math, sys, os
 
+LARGURA, ALTURA = 1280, 720
+FPS = 60
 
-def criar_jogador():
-    return {"x": LARGURA // 2, "y": ALTURA // 2, "raio": 18, "velocidade": 5}
+def carregar_recorde():
+    try:
+        with open("recorde.txt","r",encoding="utf-8") as f:
+            return int(f.read())
+    except:
+        return 0
 
-
-def criar_obstaculo():
-    return {"x": 0, "y": 300, "raio": 14, "velocidade": 3}
-
-
-def mover_jogador(jogador, teclas):
-    if (teclas[pygame.K_LEFT] or teclas[pygame.K_a]) and jogador["x"] - jogador["raio"] > 0:
-        jogador["x"] -= jogador["velocidade"]
-    if (teclas[pygame.K_RIGHT] or teclas[pygame.K_d]) and jogador["x"] + jogador["raio"] < LARGURA:
-        jogador["x"] += jogador["velocidade"]
-    if (teclas[pygame.K_UP] or teclas[pygame.K_w]) and jogador["y"] - jogador["raio"] > 0:
-        jogador["y"] -= jogador["velocidade"]
-    if (teclas[pygame.K_DOWN] or teclas[pygame.K_s]) and jogador["y"] + jogador["raio"] < ALTURA:
-        jogador["y"] += jogador["velocidade"]
-
-
-def mover_obstaculo(obs, jogador):
-    dx = jogador["x"] - obs["x"]
-    dy = jogador["y"] - obs["y"]
-    distancia = math.hypot(dx, dy)
-    if distancia != 0:
-        obs["x"] += (dx / distancia) * obs["velocidade"]
-        obs["y"] += (dy / distancia) * obs["velocidade"]
-
-
-def colidiu(jogador, obs):
-    distancia = math.hypot(jogador["x"] - obs["x"], jogador["y"] - obs["y"])
-    return distancia < jogador["raio"] + obs["raio"]
-
-
-def desenhar(tela, jogador, obs):
-    tela.fill(CINZA_ESCURO)
-    pygame.draw.circle(tela, AZUL, (int(jogador["x"]), int(jogador["y"])), jogador["raio"])
-    pygame.draw.circle(tela, VERMELHO, (int(obs["x"]), int(obs["y"])), obs["raio"])
-
+def salvar_recorde(valor):
+    with open("recorde.txt","w",encoding="utf-8") as f:
+        f.write(str(valor))
 
 def executar_jogo():
     pygame.init()
     tela = pygame.display.set_mode((LARGURA, ALTURA))
-    pygame.display.set_caption("Astro Runner: Survival")
+    pygame.display.set_caption("Astro Runner Survival")
     relogio = pygame.time.Clock()
 
-    jogador = criar_jogador()
-    obstaculo = criar_obstaculo()
+    fonte = pygame.font.SysFont(None, 42)
+    fonte_grande = pygame.font.SysFont(None, 90)
+
+    nave = pygame.image.load("assets/Voando.png").convert_alpha()
+    nave = pygame.transform.scale(nave,(64,64))
+
+    inimigo_img = pygame.image.load("assets/Inimigo.png").convert_alpha()
+    inimigo_img = pygame.transform.scale(inimigo_img,(48,48))
+
+    estrelas = [[random.randint(0,LARGURA), random.randint(0,ALTURA), random.randint(1,3)] for _ in range(150)]
+
+    recorde = carregar_recorde()
 
     while True:
-        relogio.tick(FPS)
+        # menu
+        while True:
+            for e in pygame.event.get():
+                if e.type == pygame.QUIT:
+                    pygame.quit(); sys.exit()
+                if e.type == pygame.KEYDOWN:
+                    break
+            else:
+                tela.fill((5,5,15))
+                t=fonte_grande.render("ASTRO RUNNER",True,(255,255,255))
+                tela.blit(t,(LARGURA//2-t.get_width()//2,180))
+                tela.blit(fonte.render(f"Recorde: {recorde}",True,(255,255,255)),(500,320))
+                tela.blit(fonte.render("Pressione qualquer tecla",True,(255,255,255)),(450,380))
+                pygame.display.flip()
+                relogio.tick(FPS)
+                continue
+            break
 
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+        jogador={"x":LARGURA/2,"y":ALTURA/2,"vida":3}
+        tiros=[]
+        inimigos=[]
+        pontuacao=0
+        wave=1
+        alvo_wave=5
+        spawnados=0
+        cooldown=0
+        dano_timer=0
 
-        teclas = pygame.key.get_pressed()
-        mover_jogador(jogador, teclas)
-        mover_obstaculo(obstaculo, jogador)
+        jogando=True
+        while jogando:
+            relogio.tick(FPS)
 
-        if colidiu(jogador, obstaculo):
-            jogador = criar_jogador()
-            obstaculo = criar_obstaculo()
+            mx,my=pygame.mouse.get_pos()
+            jogador["x"] += (mx-jogador["x"])*0.12
+            jogador["y"] += (my-jogador["y"])*0.12
 
-        desenhar(tela, jogador, obs=obstaculo)
-        pygame.display.flip()
+            for e in pygame.event.get():
+                if e.type==pygame.QUIT:
+                    pygame.quit(); sys.exit()
 
+                if e.type==pygame.MOUSEBUTTONDOWN and e.button==3 and cooldown<=0:
+                    ang=math.atan2(my-jogador["y"], mx-jogador["x"])
+                    tiros.append({"x":jogador["x"],"y":jogador["y"],"dx":math.cos(ang)*12,"dy":math.sin(ang)*12})
+                    cooldown=12
 
-if __name__ == "__main__":
-    executar_jogo()
+            if cooldown>0: cooldown-=1
+            if dano_timer>0: dano_timer-=1
+
+            while spawnados < alvo_wave:
+                lado=random.randint(0,3)
+                if lado==0: x,y=random.randint(0,LARGURA),-50
+                elif lado==1: x,y=LARGURA+50,random.randint(0,ALTURA)
+                elif lado==2: x,y=random.randint(0,LARGURA),ALTURA+50
+                else: x,y=-50,random.randint(0,ALTURA)
+
+                inimigos.append({"x":x,"y":y,"vel":1.5+wave*0.2})
+                spawnados+=1
+
+            for t in tiros[:]:
+                t["x"]+=t["dx"]; t["y"]+=t["dy"]
+                if t["x"]<0 or t["x"]>LARGURA or t["y"]<0 or t["y"]>ALTURA:
+                    tiros.remove(t)
+
+            for i in inimigos[:]:
+                dx=jogador["x"]-i["x"]
+                dy=jogador["y"]-i["y"]
+                d=max(1, math.hypot(dx,dy))
+                i["x"]+=dx/d*i["vel"]
+                i["y"]+=dy/d*i["vel"]
+
+                if d<35 and dano_timer<=0:
+                    jogador["vida"]-=1
+                    dano_timer=60
+                    if jogador["vida"]<=0:
+                        jogando=False
+
+            for t in tiros[:]:
+                for i in inimigos[:]:
+                    if math.hypot(t["x"]-i["x"], t["y"]-i["y"])<28:
+                        if t in tiros: tiros.remove(t)
+                        if i in inimigos: inimigos.remove(i)
+                        pontuacao+=10
+                        break
+
+            if spawnados>=alvo_wave and len(inimigos)==0:
+                wave+=1
+                alvo_wave+=3
+                spawnados=0
+
+            if pontuacao>recorde:
+                recorde=pontuacao
+                salvar_recorde(recorde)
+
+            tela.fill((5,5,15))
+
+            for e in estrelas:
+                pygame.draw.circle(tela,(255,255,255),(int(e[0]),int(e[1])),e[2])
+
+            angulo=-math.degrees(math.atan2(my-jogador["y"], mx-jogador["x"]))
+            nave_rot = pygame.transform.rotate(nave, angulo-90)
+            tela.blit(nave_rot,(jogador["x"]-nave_rot.get_width()/2,jogador["y"]-nave_rot.get_height()/2))
+
+            for t in tiros:
+                pygame.draw.circle(tela,(255,255,0),(int(t["x"]),int(t["y"])),4)
+
+            for i in inimigos:
+                tela.blit(inimigo_img,(i["x"]-24,i["y"]-24))
+
+            for v in range(jogador["vida"]):
+                pygame.draw.circle(tela,(255,0,0),(30+v*35,30),12)
+
+            tela.blit(fonte.render(f"Wave {wave}",True,(255,255,255)),(10,60))
+            tela.blit(fonte.render(f"Pontos {pontuacao}",True,(255,255,255)),(10,100))
+
+            pygame.display.flip()
+
+        # game over
+        while True:
+            for e in pygame.event.get():
+                if e.type==pygame.QUIT:
+                    pygame.quit(); sys.exit()
+                if e.type==pygame.KEYDOWN:
+                    break
+            else:
+                tela.fill((0,0,0))
+                tela.blit(fonte_grande.render("GAME OVER",True,(255,0,0)),(420,220))
+                tela.blit(fonte.render(f"Pontuacao: {pontuacao}",True,(255,255,255)),(520,340))
+                tela.blit(fonte.render(f"Recorde: {recorde}",True,(255,255,255)),(530,390))
+                tela.blit(fonte.render("Pressione qualquer tecla",True,(255,255,255)),(460,470))
+                pygame.display.flip()
+                continue
+            break
