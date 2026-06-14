@@ -151,7 +151,7 @@ def executar_jogo():
 
             pygame.display.flip()
 
-        # game over
+    
         while True:
             for e in pygame.event.get():
                 if e.type==pygame.QUIT:
