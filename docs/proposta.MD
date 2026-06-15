@@ -9,6 +9,7 @@
 * Gabriel Otávio Assrany Nascimento
 * Keven Henrique de Carvalho Lino
 * Michael Willian Tang
+* Iury Emanuel Alves da Silva
 
 ## 3. Tipo de jogo
 
