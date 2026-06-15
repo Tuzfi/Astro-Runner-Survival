@@ -30,6 +30,9 @@ def executar_jogo():
     inimigo_img = pygame.image.load("assets/Inimigo.png").convert_alpha()
     inimigo_img = pygame.transform.scale(inimigo_img,(48,48))
 
+    tiro_img = pygame.image.load("assets/Tiro.png").convert_alpha()
+    tiro_img = pygame.transform.scale(tiro_img,(6,20))
+
     estrelas = [[random.randint(0,LARGURA), random.randint(0,ALTURA), random.randint(1,3)] for _ in range(150)]
 
     recorde = carregar_recorde()
@@ -63,93 +66,261 @@ def executar_jogo():
         cooldown=0
         dano_timer=0
 
-        jogando=True
+        jogando = True
+        pausado = False
+
         while jogando:
             relogio.tick(FPS)
 
-            mx,my=pygame.mouse.get_pos()
-            jogador["x"] += (mx-jogador["x"])*0.12
-            jogador["y"] += (my-jogador["y"])*0.12
+            mx, my = pygame.mouse.get_pos()
 
             for e in pygame.event.get():
-                if e.type==pygame.QUIT:
-                    pygame.quit(); sys.exit()
+                if e.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
 
-                if e.type==pygame.MOUSEBUTTONDOWN and e.button==3 and cooldown<=0:
-                    ang=math.atan2(my-jogador["y"], mx-jogador["x"])
-                    tiros.append({"x":jogador["x"],"y":jogador["y"],"dx":math.cos(ang)*12,"dy":math.sin(ang)*12})
-                    cooldown=12
+                if e.type == pygame.KEYDOWN:
+                    if e.key == pygame.K_ESCAPE:
+                        pausado = True
 
-            if cooldown>0: cooldown-=1
-            if dano_timer>0: dano_timer-=1
+                if (
+                    e.type == pygame.MOUSEBUTTONDOWN
+                    and e.button == 3
+                    and cooldown <= 0
+                    and not pausado
+                ):
+                    ang = math.atan2(
+                        my - jogador["y"],
+                        mx - jogador["x"]
+                    )
+
+                    tiros.append({
+                        "x": jogador["x"],
+                        "y": jogador["y"],
+                        "dx": math.cos(ang) * 12,
+                        "dy": math.sin(ang) * 12,
+                        "angulo": ang
+                    })
+
+                    cooldown = 12
+
+            if pausado:
+                while pausado:
+
+                    for e in pygame.event.get():
+
+                        if e.type == pygame.QUIT:
+                            pygame.quit()
+                            sys.exit()
+
+                        if e.type == pygame.KEYDOWN:
+
+                            if e.key == pygame.K_ESCAPE:
+                                pausado = False
+
+                            elif e.key == pygame.K_q:
+                                pausado = False
+                                jogando = False
+
+                    tela.fill((5, 5, 15))
+
+                    titulo = fonte_grande.render(
+                        "PAUSADO",
+                        True,
+                        (255, 255, 0)
+                    )
+
+                    tela.blit(
+                        titulo,
+                        (
+                            LARGURA // 2 - titulo.get_width() // 2,
+                            180
+                        )
+                    )
+
+                    tela.blit(
+                        fonte.render(
+                            "ESC - Continuar",
+                            True,
+                            (255, 255, 255)
+                        ),
+                        (500, 330)
+                    )
+
+                    tela.blit(
+                        fonte.render(
+                            "Q - Voltar ao menu",
+                            True,
+                            (255, 255, 255)
+                        ),
+                        (485, 390)
+                    )
+
+                    pygame.display.flip()
+                    relogio.tick(FPS)
+
+                continue
+
+            jogador["x"] += (mx - jogador["x"]) * 0.12
+            jogador["y"] += (my - jogador["y"]) * 0.12
+
+            if cooldown > 0:
+                cooldown -= 1
+
+            if dano_timer > 0:
+                dano_timer -= 1
 
             while spawnados < alvo_wave:
-                lado=random.randint(0,3)
-                if lado==0: x,y=random.randint(0,LARGURA),-50
-                elif lado==1: x,y=LARGURA+50,random.randint(0,ALTURA)
-                elif lado==2: x,y=random.randint(0,LARGURA),ALTURA+50
-                else: x,y=-50,random.randint(0,ALTURA)
+                lado = random.randint(0, 3)
 
-                inimigos.append({"x":x,"y":y,"vel":1.5+wave*0.2})
-                spawnados+=1
+                if lado == 0:
+                    x, y = random.randint(0, LARGURA), -50
+                elif lado == 1:
+                    x, y = LARGURA + 50, random.randint(0, ALTURA)
+                elif lado == 2:
+                    x, y = random.randint(0, LARGURA), ALTURA + 50
+                else:
+                    x, y = -50, random.randint(0, ALTURA)
+
+                inimigos.append({
+                    "x": x,
+                    "y": y,
+                    "vel": 1.5 + wave * 0.2
+                })
+
+                spawnados += 1
 
             for t in tiros[:]:
-                t["x"]+=t["dx"]; t["y"]+=t["dy"]
-                if t["x"]<0 or t["x"]>LARGURA or t["y"]<0 or t["y"]>ALTURA:
+                t["x"] += t["dx"]
+                t["y"] += t["dy"]
+
+                if (
+                    t["x"] < 0
+                    or t["x"] > LARGURA
+                    or t["y"] < 0
+                    or t["y"] > ALTURA
+                ):
                     tiros.remove(t)
 
             for i in inimigos[:]:
-                dx=jogador["x"]-i["x"]
-                dy=jogador["y"]-i["y"]
-                d=max(1, math.hypot(dx,dy))
-                i["x"]+=dx/d*i["vel"]
-                i["y"]+=dy/d*i["vel"]
+                dx = jogador["x"] - i["x"]
+                dy = jogador["y"] - i["y"]
 
-                if d<35 and dano_timer<=0:
-                    jogador["vida"]-=1
-                    dano_timer=60
-                    if jogador["vida"]<=0:
-                        jogando=False
+                d = max(1, math.hypot(dx, dy))
+
+                i["x"] += dx / d * i["vel"]
+                i["y"] += dy / d * i["vel"]
+
+                if d < 35 and dano_timer <= 0:
+                    jogador["vida"] -= 1
+                    dano_timer = 60
+
+                    if jogador["vida"] <= 0:
+                        jogando = False
 
             for t in tiros[:]:
                 for i in inimigos[:]:
-                    if math.hypot(t["x"]-i["x"], t["y"]-i["y"])<28:
-                        if t in tiros: tiros.remove(t)
-                        if i in inimigos: inimigos.remove(i)
-                        pontuacao+=10
+                    if math.hypot(
+                        t["x"] - i["x"],
+                        t["y"] - i["y"]
+                    ) < 28:
+
+                        if t in tiros:
+                            tiros.remove(t)
+
+                        if i in inimigos:
+                            inimigos.remove(i)
+
+                        pontuacao += 10
                         break
 
-            if spawnados>=alvo_wave and len(inimigos)==0:
-                wave+=1
-                alvo_wave+=3
-                spawnados=0
+            if spawnados >= alvo_wave and len(inimigos) == 0:
+                wave += 1
+                alvo_wave += 3
+                spawnados = 0
 
-            if pontuacao>recorde:
-                recorde=pontuacao
+            if pontuacao > recorde:
+                recorde = pontuacao
                 salvar_recorde(recorde)
 
-            tela.fill((5,5,15))
+            tela.fill((5, 5, 15))
 
             for e in estrelas:
-                pygame.draw.circle(tela,(255,255,255),(int(e[0]),int(e[1])),e[2])
+                pygame.draw.circle(
+                    tela,
+                    (255, 255, 255),
+                    (int(e[0]), int(e[1])),
+                    e[2]
+                )
 
-            angulo=-math.degrees(math.atan2(my-jogador["y"], mx-jogador["x"]))
-            nave_rot = pygame.transform.rotate(nave, angulo-90)
-            tela.blit(nave_rot,(jogador["x"]-nave_rot.get_width()/2,jogador["y"]-nave_rot.get_height()/2))
+            angulo = -math.degrees(
+                math.atan2(
+                    my - jogador["y"],
+                    mx - jogador["x"]
+                )
+            )
+
+            nave_rot = pygame.transform.rotate(
+                nave,
+                angulo - 90
+            )
+
+            tela.blit(
+                nave_rot,
+                (
+                    jogador["x"] - nave_rot.get_width() / 2,
+                    jogador["y"] - nave_rot.get_height() / 2
+                )
+            )
 
             for t in tiros:
-                pygame.draw.circle(tela,(255,255,0),(int(t["x"]),int(t["y"])),4)
+                tiro_rot = pygame.transform.rotate(
+                    tiro_img,
+                    -math.degrees(t["angulo"]) - 90
+                )
+
+                tela.blit(
+                    tiro_rot,
+                    (
+                        t["x"] - tiro_rot.get_width()/2,
+                        t["y"] - tiro_rot.get_height()/2
+                    )
+                )
 
             for i in inimigos:
-                tela.blit(inimigo_img,(i["x"]-24,i["y"]-24))
+                tela.blit(
+                    inimigo_img,
+                    (i["x"] - 24, i["y"] - 24)
+                )
 
             for v in range(jogador["vida"]):
-                pygame.draw.circle(tela,(255,0,0),(30+v*35,30),12)
+                pygame.draw.circle(
+                    tela,
+                    (255, 0, 0),
+                    (30 + v * 35, 30),
+                    12
+                )
 
-            tela.blit(fonte.render(f"Wave {wave}",True,(255,255,255)),(10,60))
-            tela.blit(fonte.render(f"Pontos {pontuacao}",True,(255,255,255)),(10,100))
+            tela.blit(
+                fonte.render(
+                    f"Wave {wave}",
+                    True,
+                    (255, 255, 255)
+                ),
+                (10, 60)
+            )
+
+            tela.blit(
+                fonte.render(
+                    f"Pontos {pontuacao}",
+                    True,
+                    (255, 255, 255)
+                ),
+                (10, 100)
+            )
 
             pygame.display.flip()
+            
 
         # game over
         while True:
