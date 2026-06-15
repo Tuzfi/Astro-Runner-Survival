@@ -5,6 +5,7 @@
 * Gabriel Otávio Assrany Nascimento
 * Keven Henrique de Carvalho Lino
 * Michael Willian Tang
+* Iury Emanuel Alves da Silva
 
 ## Descrição do jogo
 
