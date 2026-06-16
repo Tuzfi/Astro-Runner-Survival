@@ -1,4 +1,3 @@
-
 import pygame, random, math, sys, os
 
 LARGURA, ALTURA = 1280, 720
@@ -36,7 +35,7 @@ def executar_jogo():
     estrelas = [[random.randint(0,LARGURA), random.randint(0,ALTURA), random.randint(1,3)] for _ in range(150)]
 
     recorde = carregar_recorde()
-
+    
     while True:
         # menu
         while True:
@@ -46,11 +45,116 @@ def executar_jogo():
                 if e.type == pygame.KEYDOWN:
                     break
             else:
-                tela.fill((5,5,15))
-                t=fonte_grande.render("ASTRO RUNNER",True,(255,255,255))
-                tela.blit(t,(LARGURA//2-t.get_width()//2,180))
-                tela.blit(fonte.render(f"Recorde: {recorde}",True,(255,255,255)),(500,320))
-                tela.blit(fonte.render("Pressione qualquer tecla",True,(255,255,255)),(450,380))
+
+                tela.fill((3, 5, 20))
+
+                for estrela in estrelas:
+
+                    estrela[1] += estrela[2] * 0.3
+
+                    if estrela[1] > ALTURA:
+                        estrela[1] = 0
+                        estrela[0] = random.randint(0, LARGURA)
+
+                    pygame.draw.circle(
+                        tela,
+                        (255, 255, 255),
+                        (int(estrela[0]), int(estrela[1])),
+                        estrela[2]
+                    )
+
+                angulo_menu = pygame.time.get_ticks() * 0.05
+
+                nave_menu = pygame.transform.rotozoom(
+                    nave,
+                    angulo_menu,
+                    2
+                )
+
+                tela.blit(
+                    nave_menu,
+                    (
+                        LARGURA // 2 - nave_menu.get_width() // 2,
+                        120
+                    )
+                )
+
+                sombra = fonte_grande.render(
+                    "ASTRO RUNNER",
+                    True,
+                    (20, 20, 20)
+                )
+
+                tela.blit(
+                    sombra,
+                    sombra.get_rect(
+                        center=(LARGURA // 2 + 4, 264)
+                    )
+                )
+
+                titulo = fonte_grande.render(
+                    "ASTRO RUNNER",
+                    True,
+                    (80, 220, 255)
+                )
+
+                tela.blit(
+                    titulo,
+                    titulo.get_rect(
+                        center=(LARGURA // 2, 260)
+                    )
+                )
+
+                pygame.draw.rect(
+                    tela,
+                    (20, 30, 60),
+                    (LARGURA // 2 - 160, 320, 320, 60),
+                    border_radius=12
+                )
+
+                txt_recorde = fonte.render(
+                    f"RECORDE: {recorde}",
+                    True,
+                    (255, 255, 0)
+                )
+
+                tela.blit(
+                    txt_recorde,
+                    txt_recorde.get_rect(
+                        center=(LARGURA // 2, 350)
+                    )
+                )
+
+                if pygame.time.get_ticks() % 1000 < 500:
+
+                    txt_inicio = fonte.render(
+                        "PRESSIONE QUALQUER TECLA",
+                        True,
+                        (255, 255, 255)
+                    )
+
+                    tela.blit(
+                        txt_inicio,
+                        txt_inicio.get_rect(
+                            center=(LARGURA // 2, 450)
+                        )
+                    )
+
+                fonte_pequena = pygame.font.SysFont(None, 28)
+
+                controles = fonte_pequena.render(
+                    "Mouse = mover | Botao direito = atirar | ESC = pausa",
+                    True,
+                    (180, 180, 180)
+                )
+
+                tela.blit(
+                    controles,
+                    controles.get_rect(
+                        center=(LARGURA // 2, 620)
+                    )
+                )
+
                 pygame.display.flip()
                 relogio.tick(FPS)
                 continue
@@ -68,6 +172,7 @@ def executar_jogo():
 
         jogando = True
         pausado = False
+        sair_para_menu = False
 
         while jogando:
             relogio.tick(FPS)
@@ -120,41 +225,115 @@ def executar_jogo():
 
                             elif e.key == pygame.K_q:
                                 pausado = False
+                                sair_para_menu = True
                                 jogando = False
 
-                    tela.fill((5, 5, 15))
+                    tela.fill((3, 5, 20))
+
+                    for estrela in estrelas:
+
+                        estrela[1] += estrela[2] * 0.15
+
+                        if estrela[1] > ALTURA:
+                            estrela[1] = 0
+                            estrela[0] = random.randint(0, LARGURA)
+
+                        pygame.draw.circle(
+                            tela,
+                            (255, 255, 255),
+                            (int(estrela[0]), int(estrela[1])),
+                            estrela[2]
+                        )
+
+                    angulo_pause = pygame.time.get_ticks() * 0.03
+
+                    nave_pause = pygame.transform.rotozoom(
+                        nave,
+                        angulo_pause,
+                        2
+                    )
+
+                    tela.blit(
+                        nave_pause,
+                        (
+                            LARGURA // 2 - nave_pause.get_width() // 2,
+                            100
+                        )
+                    )
+
+                    sombra = fonte_grande.render(
+                        "PAUSADO",
+                        True,
+                        (20, 20, 20)
+                    )
+
+                    tela.blit(
+                        sombra,
+                        sombra.get_rect(
+                            center=(LARGURA // 2 + 4, 244)
+                        )
+                    )
 
                     titulo = fonte_grande.render(
                         "PAUSADO",
                         True,
-                        (255, 255, 0)
+                        (255, 220, 0)
                     )
 
                     tela.blit(
                         titulo,
-                        (
-                            LARGURA // 2 - titulo.get_width() // 2,
-                            180
+                        titulo.get_rect(
+                            center=(LARGURA // 2, 240)
+                        )
+                    )
+
+                    pygame.draw.rect(
+                        tela,
+                        (20, 30, 60),
+                        (LARGURA // 2 - 220, 300, 440, 170),
+                        border_radius=15
+                    )
+
+                    txt_continuar = fonte.render(
+                        "ESC - Continuar",
+                        True,
+                        (255, 255, 255)
+                    )
+
+                    txt_menu = fonte.render(
+                        "Q - Voltar ao menu",
+                        True,
+                        (255, 255, 255)
+                    )
+
+                    tela.blit(
+                        txt_continuar,
+                        txt_continuar.get_rect(
+                            center=(LARGURA // 2, 350)
                         )
                     )
 
                     tela.blit(
-                        fonte.render(
-                            "ESC - Continuar",
-                            True,
-                            (255, 255, 255)
-                        ),
-                        (500, 330)
+                        txt_menu,
+                        txt_menu.get_rect(
+                            center=(LARGURA // 2, 410)
+                        )
                     )
 
-                    tela.blit(
-                        fonte.render(
-                            "Q - Voltar ao menu",
+                    if pygame.time.get_ticks() % 1000 < 500:
+
+                        aviso = fonte.render(
+                            "JOGO PAUSADO",
                             True,
-                            (255, 255, 255)
-                        ),
-                        (485, 390)
-                    )
+                            (180, 180, 180)
+                        )
+
+                        tela.blit(
+                            aviso,
+                            aviso.get_rect(
+                                center=(LARGURA // 2, 540)
+                            )
+                        )
 
                     pygame.display.flip()
                     relogio.tick(FPS)
@@ -246,6 +425,13 @@ def executar_jogo():
             tela.fill((5, 5, 15))
 
             for e in estrelas:
+
+                e[1] += e[2] * (0.4 + e[2] * 0.3)
+
+                if e[1] > ALTURA:
+                    e[1] = 0
+                    e[0] = random.randint(0, LARGURA)
+
                 pygame.draw.circle(
                     tela,
                     (255, 255, 255),
@@ -301,26 +487,53 @@ def executar_jogo():
                     12
                 )
 
-            tela.blit(
-                fonte.render(
-                    f"Wave {wave}",
-                    True,
-                    (255, 255, 255)
-                ),
-                (10, 60)
+            pygame.draw.rect(
+                tela,
+                (20, 30, 60),
+                (10, 10, 200, 110),
+                border_radius=12
             )
 
-            tela.blit(
-                fonte.render(
-                    f"Pontos {pontuacao}",
-                    True,
-                    (255, 255, 255)
-                ),
-                (10, 100)
+            hud_x = 10
+            hud_y = 10
+            hud_largura = 200
+            hud_altura = 110
+
+            vida_total = jogador["vida"]
+            espaco = 20
+
+            inicio_x = hud_x + hud_largura // 2 - (vida_total - 1) * espaco // 2
+            y_vidas = hud_y + hud_altura - 15
+
+            for v in range(vida_total):
+                pygame.draw.circle(
+                    tela,
+                    (255, 0, 0),
+                    (inicio_x + v * espaco, y_vidas),
+                    8
+                )
+
+            wave_txt = fonte.render(
+                f"Wave {wave}",
+                True,
+                (255, 255, 255)
             )
+
+            pontos_txt = fonte.render(
+                f"Pontos {pontuacao}",
+                True,
+                (255, 255, 255)
+            )
+
+            tela.blit(wave_txt, (25, 25))
+            tela.blit(pontos_txt, (25, 65))
 
             pygame.display.flip()
-            
+
+        if sair_para_menu:
+            jogando = False
+            pausado = False
+            continue
 
         # game over
         while True:
@@ -330,11 +543,124 @@ def executar_jogo():
                 if e.type==pygame.KEYDOWN:
                     break
             else:
-                tela.fill((0,0,0))
-                tela.blit(fonte_grande.render("GAME OVER",True,(255,0,0)),(420,220))
-                tela.blit(fonte.render(f"Pontuacao: {pontuacao}",True,(255,255,255)),(520,340))
-                tela.blit(fonte.render(f"Recorde: {recorde}",True,(255,255,255)),(530,390))
-                tela.blit(fonte.render("Pressione qualquer tecla",True,(255,255,255)),(460,470))
+                tela.fill((3, 5, 20))
+
+                for estrela in estrelas:
+
+                    estrela[1] += estrela[2] * 0.15
+
+                    if estrela[1] > ALTURA:
+                        estrela[1] = 0
+                        estrela[0] = random.randint(0, LARGURA)
+
+                    pygame.draw.circle(
+                        tela,
+                        (255,255,255),
+                        (int(estrela[0]), int(estrela[1])),
+                        estrela[2]
+                    )
+
+                offset_y = math.sin(
+                    pygame.time.get_ticks() * 0.0025
+                ) * 15
+
+                inimigo_menu = pygame.transform.scale(
+                    inimigo_img,
+                    (120, 120)
+                )
+
+                tela.blit(
+                    inimigo_menu,
+                    inimigo_menu.get_rect(
+                        center=(
+                            LARGURA // 2,
+                            130 + offset_y
+                        )
+                    )
+                )
+
+                sombra = fonte_grande.render(
+                    "GAME OVER",
+                    True,
+                    (20,20,20)
+                )
+
+                tela.blit(
+                    sombra,
+                    sombra.get_rect(
+                        center=(LARGURA//2 + 4, 224)
+                    )
+                )
+
+                game_over = fonte_grande.render(
+                    "GAME OVER",
+                    True,
+                    (255,60,60)
+                )
+
+                tela.blit(
+                    game_over,
+                    game_over.get_rect(
+                        center=(LARGURA//2, 220)
+                    )
+                )
+
+                pygame.draw.rect(
+                    tela,
+                    (20,30,60),
+                    (LARGURA//2 - 220, 290, 440, 190),
+                    border_radius=15
+                )
+
+                pygame.draw.rect(
+                    tela,
+                    (255,60,60),
+                    (LARGURA//2 - 220, 290, 440, 190),
+                    2,
+                    border_radius=15
+                )
+
+                pontos = fonte.render(
+                    f"Pontuacao: {pontuacao}",
+                    True,
+                    (255,255,255)
+                )
+
+                recorde_txt = fonte.render(
+                    f"Recorde: {recorde}",
+                    True,
+                    (255,255,0)
+                )
+
+                tela.blit(
+                    pontos,
+                    pontos.get_rect(
+                        center=(LARGURA//2, 355)
+                    )
+                )
+
+                tela.blit(
+                    recorde_txt,
+                    recorde_txt.get_rect(
+                        center=(LARGURA//2, 415)
+                    )
+                )
+
+                if pygame.time.get_ticks() % 1000 < 500:
+
+                    continuar = fonte.render(
+                        "PRESSIONE QUALQUER TECLA",
+                        True,
+                        (255,255,255)
+                    )
+
+                    tela.blit(
+                        continuar,
+                        continuar.get_rect(
+                            center=(LARGURA//2, 560)
+                        )
+                    )
+
                 pygame.display.flip()
                 continue
             break
