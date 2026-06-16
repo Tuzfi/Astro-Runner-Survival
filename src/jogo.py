@@ -220,7 +220,7 @@ def executar_jogo():
             relogio.tick(FPS)
 
     def tela_upgrade(jogador):
-        """Tela de escolha de upgrade na wave 15. Aplica direto no jogador."""
+        """Tela de escolha de upgrade na wave 10. Aplica direto no jogador."""
         opcoes = [
             ("+2 Tiros", "tiros"),
             ("+2 Coracoes", "vida"),
