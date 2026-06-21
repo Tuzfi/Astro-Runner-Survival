@@ -21,7 +21,7 @@ Tipo escolhido pelo grupo:
 
 Descrição:
 
-> O jogador controla uma nave espacial em um ambiente espacial repleto de inimigos e asteroides. O objetivo é sobreviver o maior tempo possível enquanto desvia dos perigos e elimina ameaças. A cada 60 segundos, o jogador pode escolher uma melhoria para fortalecer sua nave e enfrentar desafios cada vez maiores.
+> O jogador controla uma nave espacial em um ambiente espacial repleto de inimigos e asteroides. O objetivo é sobreviver o maior tempo possível enquanto desvia dos perigos e elimina ameaças. 
 
 ## 5. Objetivo do jogador
 
@@ -82,7 +82,7 @@ Descrição:
 Controles do grupo:
 
 * W, A, S e D ou setas direcionais: movimentar a nave.
-* Barra de espaço: disparar.
+* Mouse esquerdo: disparar.
 * ESC: pausar ou sair do jogo.
 
 ## 11. Organização inicial do código
@@ -98,16 +98,9 @@ Organização planejada:
 * `src/melhorias.py`: gerencia as melhorias.
 * `src/config.py`: armazena configurações gerais.
 
-## 12. Recursos externos previstos
 
-Recursos previstos:
 
-* Imagens gratuitas para a nave e inimigos.
-* Sons gratuitos para tiros e explosões.
-* Tutoriais de Pygame utilizados como referência.
-* Fonte personalizada para interface do jogo.
-
-## 13. Principais dificuldades esperadas
+## 12. Principais dificuldades esperadas
 
 Dificuldades previstas:
 
@@ -115,13 +108,13 @@ Dificuldades previstas:
 * Controle de colisões entre diversos objetos.
 * Balanceamento da dificuldade ao longo da partida.
 
-## 14. Escopo mínimo para a entrega final
+## 13. Escopo mínimo para a entrega final
 
 Escopo mínimo:
 
 > A versão mínima do jogo terá uma nave controlada pelo teclado, movimentação dos inimigos e asteroides, sistema de colisão, barra de vida, disparos básicos, contador de tempo sobrevivido e tela de fim de jogo.
 
-## 15. Possíveis melhorias, caso haja tempo
+## 14. Possíveis melhorias, caso haja tempo
 
 Melhorias possíveis:
 
@@ -133,7 +126,7 @@ Melhorias possíveis:
 * Bosses especiais.
 * Menu principal e tela de pausa aprimorada.
 
-## 16. Estruturas de dados que poderão ser utilizadas
+## 15. Estruturas de dados que poderão ser utilizadas
 
 Estruturas previstas:
 
@@ -142,7 +135,7 @@ Estruturas previstas:
 * Variáveis numéricas para controlar pontuação, tempo sobrevivido e nível de dificuldade.
 * Arquivos de texto ou JSON para armazenamento de recordes e configurações.
 
-## 17. Uso previsto de arquivos
+## 16. Uso previsto de arquivos
 
 Uso previsto:
 
@@ -150,7 +143,7 @@ Uso previsto:
 * Arquivo para armazenar configurações futuras do jogo.
 * Pasta de recursos contendo imagens, sons e fontes utilizadas durante a execução.
 
-## 18. Testes planejados
+## 17. Testes planejados
 
 Testes previstos:
 
