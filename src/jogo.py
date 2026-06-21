@@ -11,8 +11,8 @@ from src.assets import carregar_sprites
 
 from src.hud import desenhar_hud
 from src.entities import criar_inimigo, criar_jogador, criar_tiro
-from src.systems import atualizar_tiros, atualizar_waves, colisao_tiros, atualizar_movimento_inimigos, checar_colisao_jogador
-from src.render import desenhar_fundo, desenhar_inimigos, desenhar_nave, desenhar_tiros, desenhar_vidas_antigas
+from src.systems import atualizar_tiros, atualizar_waves, colisao_tiros, atualizar_movimento_inimigos, checar_colisao_jogador, criar_explosao, atualizar_particulas
+from src.render import desenhar_fundo, desenhar_inimigos, desenhar_nave, desenhar_tiros, desenhar_particulas
 
 #======= FUNÇÃO PRINCIPAL DO JOGO =======
 def executar_jogo():
@@ -51,16 +51,19 @@ def executar_jogo():
 
         #======= RESET DA PARTIDA =======
         jogador = criar_jogador()
-        tiros=[]
-        inimigos=[]
+        tiros = []
+        inimigos = []
+        particulas = []
 
-        pontuacao=0
-        wave=1
-        alvo_wave=5
-        spawnados=0
+        pontuacao = 0
+        wave = 1
+        alvo_wave = 5
+        spawnados = 0
 
-        cooldown=0
-        dano_timer=0
+        cooldown = 0
+        dano_timer = 0
+        flash_dano = 0
+        vida_flash = 0
 
         jogando = True
         pausado = False
@@ -134,6 +137,14 @@ def executar_jogo():
             if dano_timer > 0:
                 dano_timer -= 1
 
+            #======= TIMER DE NAVE PISCANDO AO LEVAR DANO =======
+            if flash_dano > 0:
+                flash_dano -= 1
+
+            #======= TIMER DE VIDA PISCANDO AO LEVAR DANO =======
+            if vida_flash > 0:
+                vida_flash -= 1
+
             #======= SPAWN DE INIMIGOS =======
             while spawnados < alvo_wave:
                 #======= CRIA O INIMIGO =======
@@ -143,20 +154,23 @@ def executar_jogo():
             #======= SISTEMAS DE JOGO =======
             #------- atualiza movimento dos tiros -------
             atualizar_tiros(tiros)
+            atualizar_particulas(particulas)
             
             #------- move inimigo em direção ao jogador -------
             atualizar_movimento_inimigos(inimigos, jogador)
 
             #------- verifica colisão entre inimigo e jogador -------
             if checar_colisao_jogador(inimigos, jogador, dano_timer):
+                vida_flash = 24
                 jogador["vida"] -= 1
                 dano_timer = 60
+                flash_dano = 60
 
                 if jogador["vida"] <= 0:
                     jogando = False
 
             #------- colisao tiros x inimigos -------
-            pontuacao += colisao_tiros(tiros, inimigos)
+            pontuacao += colisao_tiros(tiros, inimigos, particulas)
 
             #------- controle de progressão das waves -------
             if atualizar_waves(spawnados, alvo_wave, inimigos):
@@ -173,12 +187,15 @@ def executar_jogo():
             tela.fill((5, 5, 15))
 
             desenhar_fundo(tela, estrelas)
-            desenhar_nave(tela, nave, jogador, mx, my)
+            desenhar_nave(tela, nave, jogador, mx, my, flash_dano)
             desenhar_tiros(tela, tiros, tiro_img)
             desenhar_inimigos(tela, inimigos, inimigo_img)
-            desenhar_vidas_antigas(tela, jogador)
+            desenhar_particulas(tela, particulas)
 
-            desenhar_hud(tela, jogador, wave, pontuacao, fonte)
+            progresso = spawnados - len(inimigos)
+            progresso = max(0, progresso)
+            percentual = progresso / alvo_wave
+            desenhar_hud(tela, jogador, wave, pontuacao, fonte, percentual, vida_flash)
             pygame.display.flip()
 
         #======= SAÍDA DA PARTIDA =======
@@ -195,7 +212,7 @@ def executar_jogo():
             result = game_over_screen(
                 tela,
                 relogio, fonte, fonte_grande,
-                inimigo_img, pontuacao, recorde, estrelas
+                inimigo_img, pontuacao, recorde, wave, estrelas
             )
 
             if result == "menu":

@@ -23,7 +23,7 @@ def desenhar_fundo(tela, estrelas):
         )
 
 #======= DESENHO DA NAVE =======
-def desenhar_nave(tela, nave, jogador, mx, my):
+def desenhar_nave(tela, nave, jogador, mx, my, flash_dano):
 
     #------- calcula ângulo entre nave e mouse -------
     angulo = -math.degrees(
@@ -34,13 +34,27 @@ def desenhar_nave(tela, nave, jogador, mx, my):
     nave_rot = pygame.transform.rotate(nave, angulo - 90)
 
     #------- desenha centralizado na posição do jogador -------
-    tela.blit(
-        nave_rot,
-        (
-            jogador["x"] - nave_rot.get_width() / 2,
-            jogador["y"] - nave_rot.get_height() / 2
+    if flash_dano > 0 and flash_dano % 10 < 5:
+        nave_dano = nave_rot.copy()
+        nave_dano.fill(
+            (255,0,0,255),
+            special_flags=pygame.BLEND_RGBA_MULT
         )
-    )
+        tela.blit(
+            nave_dano,
+            (
+                jogador["x"] - nave_rot.get_width() / 2,
+                jogador["y"] - nave_rot.get_height() / 2
+            )
+        )
+    else:
+        tela.blit(
+            nave_rot,
+            (
+                jogador["x"] - nave_rot.get_width()/2,
+                jogador["y"] - nave_rot.get_height()/2
+            )
+        )
 
 #======= DESENHO DOS TIROS =======
 def desenhar_tiros(tela, tiros, tiro_img):
@@ -66,14 +80,25 @@ def desenhar_inimigos(tela, inimigos, inimigo_img):
     for i in inimigos:
         tela.blit(inimigo_img, (i["x"] - 24, i["y"] - 24))
 
-#======= HUD DE VIDAS ANTIGA =======
-def desenhar_vidas_antigas(tela, jogador):
+#======= DESENHO DAS PARTÍCULAS =======
+def desenhar_particulas(tela, particulas):
+    for p in particulas:
+        #------- fade baseado na vida -------
+        alpha = max(0, min(255, int(255 * (p["vida"] / 30))))
 
-    #------- desenha uma bolinha vermelha para cada vida -------
-    for v in range(jogador["vida"]):
+        cor = p["cor"]
+
+        #------- superfície temporária pra alpha funcionar -------
+        s = pygame.Surface((p["tamanho"]*4, p["tamanho"]*4), pygame.SRCALPHA)
+
         pygame.draw.circle(
-            tela,
-            (255, 0, 0),
-            (30 + v * 35, 30),
-            12
+            s,
+            (cor[0], cor[1], cor[2], alpha),
+            (p["tamanho"]*2, p["tamanho"]*2),
+            p["tamanho"]
+        )
+
+        tela.blit(
+            s,
+            (int(p["x"]) - p["tamanho"], int(p["y"]) - p["tamanho"])
         )

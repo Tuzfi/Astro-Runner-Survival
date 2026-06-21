@@ -3,7 +3,7 @@ from src.config import LARGURA, ALTURA, FPS
 
 #======= TELA DE GAME OVER =======
 def game_over_screen(tela, relogio, fonte,
-                     fonte_grande, inimigo_img, pontuacao, recorde, estrelas):
+                     fonte_grande, inimigo_img, pontuacao, recorde, wave, estrelas):
 
     #======= LOOP DA TELA =======
     while True:
@@ -123,15 +123,27 @@ def game_over_screen(tela, relogio, fonte,
             tela.blit(
                 pontos,
                 pontos.get_rect(
-                    center=(LARGURA//2, 355)
+                    center=(LARGURA//2, 335)
                 )
             )
 
             tela.blit(
                 recorde_txt,
                 recorde_txt.get_rect(
-                    center=(LARGURA//2, 415)
+                    center=(LARGURA//2, 385)
                 )
+            )
+
+            #------- wave alcançada -------
+            wave_txt = fonte.render(
+                f"Wave atingida: {wave}",
+                True,
+                (200,200,200)
+            )
+
+            tela.blit(
+                wave_txt,
+                wave_txt.get_rect(center=(LARGURA//2, 435))
             )
 
             #------- texto piscando -------
@@ -146,7 +158,7 @@ def game_over_screen(tela, relogio, fonte,
                 tela.blit(
                     continuar,
                     continuar.get_rect(
-                        center=(LARGURA//2, 560)
+                        center=(LARGURA//2, 600)
                     )
                 )
 

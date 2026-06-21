@@ -6,7 +6,8 @@ def criar_jogador():
     return {
         "x": LARGURA / 2,
         "y": ALTURA / 2,
-        "vida": 3
+        "vida": 3,
+        "dano_timer": 0
     }
 
 #======= CRIA UM TIRO =======

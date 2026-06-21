@@ -1,4 +1,4 @@
-import math
+import math, random
 from src.config import LARGURA, ALTURA
 
 #======= SISTEMA DE MOVIMENTO DOS TIROS =======
@@ -46,7 +46,7 @@ def checar_colisao_jogador(inimigos, jogador, dano_timer):
     return False
 
 #======= SISTEMA DE COLISÃO TIRO X INIMIGO =======
-def colisao_tiros(tiros, inimigos):
+def colisao_tiros(tiros, inimigos, particulas):
     pontuacao_ganha = 0
 
     for t in tiros[:]:
@@ -64,6 +64,11 @@ def colisao_tiros(tiros, inimigos):
                 #------- remove inimigo -------
                 if i in inimigos:
                     inimigos.remove(i)
+                    criar_explosao(
+                        particulas,
+                        i["x"],
+                        i["y"]
+                    )
 
                 #------- pontuação -------
                 pontuacao_ganha += 10
@@ -76,3 +81,33 @@ def atualizar_waves(spawnados, alvo_wave, inimigos):
     if spawnados >= alvo_wave and len(inimigos) == 0:
         return True
     return False
+
+#======= CRIA EXPLOSÃO =======
+def criar_explosao(particulas, x, y):
+    for _ in range(18):
+        ang = random.uniform(0, math.pi * 2)
+        vel = random.uniform(1, 5)
+
+        particulas.append({
+            "x": x,
+            "y": y,
+            "dx": math.cos(ang) * vel,
+            "dy": math.sin(ang) * vel,
+            "vida": random.randint(20,35),
+            "cor": random.choice([
+                (255, 200, 80),
+                (255, 120, 50),
+                (255, 60, 30)
+            ]),
+            "tamanho": random.randint(2,4)
+        })
+
+#======= ATUALIZA PARTÍCULAS =======
+def atualizar_particulas(particulas):
+    for p in particulas[:]:
+        p["x"] += p["dx"]
+        p["y"] += p["dy"]
+        p["dy"] += 0.1
+        p["vida"] -= 1
+        if p["vida"] <= 0:
+            particulas.remove(p)
