@@ -1,7 +1,7 @@
 
 import pygame, random, math, sys, os
 
-LARGURA, ALTURA = 1280, 720
+LARGURA, ALTURA = 1920, 1080
 FPS = 60
 
 BRANCO=(255,255,255)
