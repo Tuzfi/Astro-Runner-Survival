@@ -1,0 +1,4 @@
+#======= CONFIGURAÇÕES GERAIS =======
+LARGURA = 1280
+ALTURA = 720
+FPS = 60

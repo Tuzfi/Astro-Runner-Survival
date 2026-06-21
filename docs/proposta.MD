@@ -81,22 +81,28 @@ Descrição:
 
 Controles do grupo:
 
-* W, A, S e D ou setas direcionais: movimentar a nave.
-* Barra de espaço: disparar.
-* ESC: pausar ou sair do jogo.
+* Mouse: movimentar a nave.
+* Botão direito do mouse: disparar.
+* ESC: pausar jogo.
+* Q (Na tela de pausa): Voltar ao menu
 
 ## 11. Organização inicial do código
 
 Organização planejada:
 
 * `main.py`: inicia o jogo.
-* `src/jogo.py`: contém o loop principal.
-* `src/jogador.py`: controla a nave do jogador.
-* `src/inimigos.py`: controla os inimigos.
-* `src/asteroides.py`: controla os asteroides.
-* `src/projeteis.py`: controla os disparos.
-* `src/melhorias.py`: gerencia as melhorias.
+* `src/assets.py`: carrega as sprites do jogo.
+* `src/entities.py`: cria as entidades do jogo (inimigo, jogador e tiros)
+* `src/gameover.py`: carrega a tela de gameover.
+* `src/hud.py`: cria o HUD do jogo.
+* `src/inout.py`: controla teclas e botões usado no jogo.
+* `src/jogo.py`: loop principal do jogo.
 * `src/config.py`: armazena configurações gerais.
+* `src/menu.py`: gera a tela de menu do jogo.
+* `src/pause.py`: gera a tela de pause do jogo.
+* `src/recorde.py`: carrega o sistema de recorde do jogo.
+* `src/render.py`: renderiza os desenhos do jogo (nave, inimigo, tiro, vida, backgroud).
+* `src/systems.py`: carrega os sitemas do jogo (colisão, morte, eliminação, waves).
 
 ## 12. Recursos externos previstos
 

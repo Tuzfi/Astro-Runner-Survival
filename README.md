@@ -26,9 +26,6 @@
 
 ## Controles
 
-* W ou Seta para cima: mover para cima.
-* S ou Seta para baixo: mover para baixo.
-* A ou Seta para esquerda: mover para esquerda.
-* D ou Seta para direita: mover para direita.
-* Espaço: disparar. [EM BREVE]
-* ESC: pausar ou sair do jogo. [EM BREVE]
+* Mouse movimenta o jogador
+* Botão Direito do Mouse: Disparo
+* ESC: pausar jogo
